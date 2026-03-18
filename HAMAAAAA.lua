@@ -379,21 +379,28 @@ Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
 
-local rodEquipLoop = task.spawn(function()
-    while true do
-        if (getgenv().Blati or getgenv().ForceSecret) and player.Character then
-            pcall(function()
-                local toolInHand = player.Character:FindFirstChildOfClass("Tool")
-                if not toolInHand then
-                    local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
-                    if backpackTool then
-                        backpackTool.Parent = player.Character
-                    end
-                end
-            end)
+local function setupRodEquip(char)
+    if not char then return end
+    char.ChildRemoved:Connect(function(child)
+        if child:IsA("Tool") and (getgenv().Blati or getgenv().ForceSecret) then
+            task.wait(0.05)
+            local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
+            if backpackTool then
+                backpackTool.Parent = char
+            end
         end
-        task.wait(5)
+    end)
+end
+
+if player.Character then
+    setupRodEquip(player.Character)
+end
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    if humanoid then
+        humanoid.WalkSpeed = getgenv().WalkSpeedValue
     end
+    setupRodEquip(char)
 end)
 
 print("🎉 HAMZHUB GUI KEREN udah muncul bro! Tab MAIN & PLAYER siap. Cast manual 1x dulu biar Blati nyala. Gas polll 🔥")
