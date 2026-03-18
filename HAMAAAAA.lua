@@ -100,9 +100,9 @@ local function startBlati()
                         getgenv().FishCaught = 0
                     end
                 end
-                task.wait(0)
+                task.wait(0.01)
             else
-                task.wait(0)
+                task.wait(0.01)
             end
         end
     end)
