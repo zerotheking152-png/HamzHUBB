@@ -82,9 +82,7 @@ local function startBlati()
                     end
                 end
                 throwRemote:FireServer(0, sessionID)
-                task.wait(0)
                 minigameStarted:FireServer(sessionID)
-                task.wait(0)
                 local successArgs = {
                     ["duration"] = math.random(7.5, 12.5),
                     ["result"] = "SUCCESS",
@@ -93,7 +91,6 @@ local function startBlati()
                     ["isSecret"] = true
                 }
                 reelFinished:FireServer(successArgs, sessionID)
-                task.wait(0)
                 if getgenv().AutoSell then
                     getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
                     if getgenv().FishCaught >= getgenv().SellInterval then
