@@ -1,23 +1,17 @@
--- HAMZHUB AUTO FISH + BLATI GUI (2026) - SUPER CEPET + GUI KEREN VERSION
--- Execute pake executor lo (Fluxus/Delta/Wave/Solara dll)
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- === REMOTES ===
 local throwRemote = ReplicatedStorage:WaitForChild("Fishing_RemoteThrow")
 local fishingFolder = ReplicatedStorage:WaitForChild("Fishing")
 local toServer = fishingFolder:WaitForChild("ToServer")
 local minigameStarted = toServer:WaitForChild("MinigameStarted")
 local reelFinished = toServer:WaitForChild("ReelFinished")
 
--- === SELL REMOTE (dari spy lo) ===
 local sellRemote = ReplicatedStorage:WaitForChild("Economy"):WaitForChild("ToServer"):WaitForChild("SellUnder")
 
--- === SESSION ID HOOK ===
 local sessionID = nil
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
@@ -31,7 +25,6 @@ oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     return oldNamecall(self, ...)
 end))
 
--- === FLAGS ===
 getgenv().Blati = false
 getgenv().ForceSecret = false
 getgenv().InfiniteJump = false
@@ -41,7 +34,6 @@ getgenv().AutoSell = false
 getgenv().SellCount = 10
 getgenv().FishCaught = 0
 
--- === CHARACTER SETUP ===
 local humanoid = nil
 local function getHumanoid()
     if player.Character and player.Character:FindFirstChild("Humanoid") then
@@ -56,7 +48,6 @@ player.CharacterAdded:Connect(function(char)
 end)
 getHumanoid()
 
--- === RAYFIELD GUI ===
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -74,7 +65,6 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("MAIN", 4483362458)
 local PlayerTab = Window:CreateTab("PLAYER", 4483362458)
 
--- === BLATI (Instant Fishing SUPER CEPET + SECRET) ===
 local blatiLoop
 local function startBlati()
     if blatiLoop then return end
@@ -120,7 +110,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServ
     end,
 })
 
--- === FORCE SECRET (Instant Fishing Secret) ===
 local forceSecretLoop
 local function startForceSecret()
     if forceSecretLoop then return end
@@ -166,7 +155,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServ
     end,
 })
 
--- === PLAYER TAB ELEMENTS ===
 local jumpConnection
 PlayerTab:CreateToggle({
     Name = "Infinite Jump",
@@ -259,7 +247,7 @@ local function startAutoSell()
                 end
                 getgenv().FishCaught = 0
             end
-            task.wait(0.5)
+            task.wait(1)
         end
     end)
 end
@@ -278,7 +266,6 @@ PlayerTab:CreateToggle({
     end,
 })
 
--- === TELEPORT MENU SENDIRI (tab baru, bukan di player) ===
 local TeleportTab = Window:CreateTab("TELEPORT", 4483362458)
 local teleportSection = TeleportTab:CreateSection("TELEPORT PULAU")
 
@@ -378,7 +365,6 @@ TeleportTab:CreateButton({
     end,
 })
 
--- Auto update walkspeed kalau character respawn
 player.CharacterAdded:Connect(function()
     task.wait(1)
     if humanoid then
@@ -386,7 +372,6 @@ player.CharacterAdded:Connect(function()
     end
 end)
 
--- === ANTI AFK ===
 local VirtualUser = game:GetService("VirtualUser")
 Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
@@ -394,19 +379,20 @@ Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
 
--- === ROD EQUIP FIX (biar rod tetep kepake setelah AFK lama) ===
 local rodEquipLoop = task.spawn(function()
     while true do
         if (getgenv().Blati or getgenv().ForceSecret) and player.Character then
-            local toolInHand = player.Character:FindFirstChildOfClass("Tool")
-            if not toolInHand then
-                local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
-                if backpackTool then
-                    backpackTool.Parent = player.Character
+            pcall(function()
+                local toolInHand = player.Character:FindFirstChildOfClass("Tool")
+                if not toolInHand then
+                    local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
+                    if backpackTool then
+                        backpackTool.Parent = player.Character
+                    end
                 end
-            end
+            end)
         end
-        task.wait(3)
+        task.wait(5)
     end
 end)
 
