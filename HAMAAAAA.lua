@@ -31,8 +31,9 @@ getgenv().InfiniteJump = false
 getgenv().Noclip = false
 getgenv().WalkSpeedValue = 16
 getgenv().AutoSell = false
-getgenv().SellInterval = 180
-getgenv().FishCaught = 0
+getgenv().SellEvery = 10
+getgenv().CaughtCount = 0
+getgenv().CacingBesarAlasaka = false
 
 local humanoid = nil
 local function getHumanoid()
@@ -70,51 +71,83 @@ local function startBlati()
     if blatiLoop then return end
     blatiLoop = task.spawn(function()
         while getgenv().Blati do
-            if not humanoid then
-                getHumanoid()
-            end
             if sessionID and humanoid then
-                local toolInHand = player.Character:FindFirstChildOfClass("Tool")
-                if not toolInHand then
-                    local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
-                    if backpackTool then
-                        backpackTool.Parent = player.Character
-                    end
-                end
                 throwRemote:FireServer(0, sessionID)
+                task.wait(0.00001)
                 minigameStarted:FireServer(sessionID)
-                
-                -- === DAPET 10 IKAN SEKALIGUS ===
-                for i = 1, 10 do
-                    local successArgs = {
-                        ["duration"] = math.random(7.5, 12.5),
-                        ["result"] = "SUCCESS",
-                        ["insideRatio"] = 0.8 + (math.random(3, 18) / 100),
-                        ["catchType"] = "SECRET",
-                        ["isSecret"] = true
-                    }
-                    reelFinished:FireServer(successArgs, sessionID)
-                end
-                
-                if getgenv().AutoSell then
-                    getgenv().FishCaught = (getgenv().FishCaught or 0) + 10
-                    if getgenv().FishCaught >= getgenv().SellInterval then
-                        if sellRemote then
-                            sellRemote:FireServer(1000)
-                        end
-                        getgenv().FishCaught = 0
+                task.wait(0.00001)
+                local successArgs = {
+                    ["duration"] = math.random(7.5, 12.5),
+                    ["result"] = "SUCCESS",
+                    ["insideRatio"] = 0.8 + (math.random(3, 18) / 100),
+                    ["catchType"] = "SECRET",
+                    ["isSecret"] = true
+                }
+                reelFinished:FireServer(successArgs, sessionID)
+                task.wait(0.00001)
+                getgenv().CaughtCount = (getgenv().CaughtCount or 0) + 1
+                if getgenv().AutoSell and getgenv().CaughtCount >= (getgenv().SellEvery or 10) then
+                    if sellRemote then
+                        sellRemote:FireServer(1000)
                     end
+                    getgenv().CaughtCount = 0
                 end
-                task.wait(0.01)
             else
-                task.wait(0.01)
+                task.wait(0.00001)
             end
         end
     end)
 end
 
+local forceSecretLoop
+local function startForceSecret()
+    if forceSecretLoop then return end
+    forceSecretLoop = task.spawn(function()
+        while getgenv().ForceSecret do
+            if sessionID and humanoid then
+                throwRemote:FireServer(0, sessionID)
+                task.wait(0.00001)
+                minigameStarted:FireServer(sessionID)
+                task.wait(0.00001)
+                local successArgs = {
+                    ["duration"] = math.random(7.5, 12.5),
+                    ["result"] = "SUCCESS",
+                    ["insideRatio"] = 0.8 + (math.random(3, 18) / 100),
+                    ["catchType"] = "SECRET",
+                    ["isSecret"] = true
+                }
+                reelFinished:FireServer(successArgs, sessionID)
+                task.wait(0.00001)
+                getgenv().CaughtCount = (getgenv().CaughtCount or 0) + 1
+                if getgenv().AutoSell and getgenv().CaughtCount >= (getgenv().SellEvery or 10) then
+                    if sellRemote then
+                        sellRemote:FireServer(1000)
+                    end
+                    getgenv().CaughtCount = 0
+                end
+            else
+                task.wait(0.00001)
+            end
+        end
+    end)
+end
+
+local cacingBesarLoop
+local function startCacingBesarAlasaka()
+    if cacingBesarLoop then return end
+    cacingBesarLoop = task.spawn(function()
+        while getgenv().CacingBesarAlasaka do
+            pcall(function()
+                local Event = game:GetService("ReplicatedStorage").FishUI.ToClient.CacingDelta
+                firesignal(Event.OnClientEvent, 5)
+            end)
+            task.wait(0.5)
+        end
+    end)
+end
+
 MainTab:CreateToggle({
-    Name = "Maxium Blati",
+    Name = "BLATI (Instant Fishing)",
     CurrentValue = false,
     Flag = "BlatiFlag",
     Callback = function(Value)
@@ -125,13 +158,52 @@ MainTab:CreateToggle({
 	"bd4238ec-6bbc-4523-8c63-a17356e1f130"
 }
 game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServer"):WaitForChild("ToggleFavorite"):FireServer(unpack(args))
+            pcall(function()
+                local Event = game:GetService("ReplicatedStorage").FishUI.ToClient.CacingDelta
+                firesignal(Event.OnClientEvent, 5)
+            end)
         else
             if blatiLoop then task.cancel(blatiLoop) blatiLoop = nil end
         end
     end,
 })
 
-local jumpConnection
+MainTab:CreateToggle({
+    Name = "FORCE SECRET (Instant Fishing Secret)",
+    CurrentValue = false,
+    Flag = "ForceSecretFlag",
+    Callback = function(Value)
+        getgenv().ForceSecret = Value
+        if Value then
+            startForceSecret()
+            local args = {
+	"bd4238ec-6bbc-4523-8c63-a17356e1f130"
+}
+game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServer"):WaitForChild("ToggleFavorite"):FireServer(unpack(args))
+            pcall(function()
+                local Event = game:GetService("ReplicatedStorage").FishUI.ToClient.CacingDelta
+                firesignal(Event.OnClientEvent, 5)
+            end)
+        else
+            if forceSecretLoop then task.cancel(forceSecretLoop) forceSecretLoop = nil end
+        end
+    end,
+})
+
+MainTab:CreateToggle({
+    Name = "CACING BESAR ALASAKA (Auto Get Worm)",
+    CurrentValue = false,
+    Flag = "CacingBesarFlag",
+    Callback = function(Value)
+        getgenv().CacingBesarAlasaka = Value
+        if Value then
+            startCacingBesarAlasaka()
+        else
+            if cacingBesarLoop then task.cancel(cacingBesarLoop) cacingBesarLoop = nil end
+        end
+    end,
+})
+
 PlayerTab:CreateToggle({
     Name = "Infinite Jump",
     CurrentValue = false,
@@ -184,22 +256,7 @@ PlayerTab:CreateToggle({
 })
 
 PlayerTab:CreateInput({
-    Name = "WalkSpeed",
-    CurrentValue = "16",
-    PlaceholderText = "16",
-    RemoveTextAfterFocusLost = false,
-    Flag = "WalkSpeedFlag",
-    Callback = function(Text)
-        local value = tonumber(Text)
-        if value and humanoid then
-            getgenv().WalkSpeedValue = value
-            humanoid.WalkSpeed = value
-        end
-    end,
-})
-
-PlayerTab:CreateInput({
-    Name = "Sell Every (count)",
+    Name = "Sell Every (fish)",
     CurrentValue = "10",
     PlaceholderText = "10",
     RemoveTextAfterFocusLost = false,
@@ -207,20 +264,10 @@ PlayerTab:CreateInput({
     Callback = function(Text)
         local val = tonumber(Text)
         if val and val >= 1 and val <= 200 then
-            getgenv().SellInterval = val
+            getgenv().SellEvery = val
         end
     end,
 })
-
-local autoSellLoop
-local function startAutoSell()
-    if autoSellLoop then return end
-    autoSellLoop = task.spawn(function()
-        while getgenv().AutoSell do
-            task.wait(0.1)
-        end
-    end)
-end
 
 PlayerTab:CreateToggle({
     Name = "AUTO SELL",
@@ -229,15 +276,12 @@ PlayerTab:CreateToggle({
     Callback = function(Value)
         getgenv().AutoSell = Value
         if Value then
-            startAutoSell()
-        else
-            if autoSellLoop then task.cancel(autoSellLoop) autoSellLoop = nil end
+            getgenv().CaughtCount = 0
         end
     end,
 })
 
 local TeleportTab = Window:CreateTab("TELEPORT", 4483362458)
-local teleportSection = TeleportTab:CreateSection("TELEPORT PULAU")
 
 TeleportTab:CreateButton({
     Name = "Pulau Kinyis",
@@ -335,7 +379,7 @@ end)
 
 local rodEquipLoop = task.spawn(function()
     while true do
-        if getgenv().Blati and player.Character then
+        if (getgenv().Blati or getgenv().ForceSecret) and player.Character then
             local toolInHand = player.Character:FindFirstChildOfClass("Tool")
             if not toolInHand then
                 local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
@@ -344,7 +388,7 @@ local rodEquipLoop = task.spawn(function()
                 end
             end
         end
-        task.wait(1)
+        task.wait(10)
     end
 end)
 
