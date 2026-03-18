@@ -1,23 +1,17 @@
--- HAMZHUB AUTO FISH + BLATI GUI (2026) - SUPER CEPET + GUI KEREN VERSION
--- Execute pake executor lo (Fluxus/Delta/Wave/Solara dll)
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- === REMOTES ===
 local throwRemote = ReplicatedStorage:WaitForChild("Fishing_RemoteThrow")
 local fishingFolder = ReplicatedStorage:WaitForChild("Fishing")
 local toServer = fishingFolder:WaitForChild("ToServer")
 local minigameStarted = toServer:WaitForChild("MinigameStarted")
 local reelFinished = toServer:WaitForChild("ReelFinished")
 
--- === SELL REMOTE (dari spy lo) ===
 local sellRemote = ReplicatedStorage:WaitForChild("Economy"):WaitForChild("ToServer"):WaitForChild("SellUnder")
 
--- === SESSION ID HOOK ===
 local sessionID = nil
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
@@ -31,17 +25,15 @@ oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     return oldNamecall(self, ...)
 end))
 
--- === FLAGS ===
 getgenv().Blati = false
 getgenv().ForceSecret = false
 getgenv().InfiniteJump = false
 getgenv().Noclip = false
 getgenv().WalkSpeedValue = 16
 getgenv().AutoSell = false
-getgenv().SellInterval = 180  -- default 3 menit (bisa diubah lewat box)
+getgenv().SellInterval = 180
 getgenv().FishCaught = 0
 
--- === CHARACTER SETUP ===
 local humanoid = nil
 local function getHumanoid()
     if player.Character and player.Character:FindFirstChild("Humanoid") then
@@ -56,7 +48,6 @@ player.CharacterAdded:Connect(function(char)
 end)
 getHumanoid()
 
--- === RAYFIELD GUI ===
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -74,12 +65,14 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("MAIN", 4483362458)
 local PlayerTab = Window:CreateTab("PLAYER", 4483362458)
 
--- === BLATI (Instant Fishing SUPER CEPET + SECRET) ===
 local blatiLoop
 local function startBlati()
     if blatiLoop then return end
     blatiLoop = task.spawn(function()
         while getgenv().Blati do
+            if not humanoid then
+                getHumanoid()
+            end
             if sessionID and humanoid then
                 local toolInHand = player.Character:FindFirstChildOfClass("Tool")
                 if not toolInHand then
@@ -89,9 +82,9 @@ local function startBlati()
                     end
                 end
                 throwRemote:FireServer(0, sessionID)
-                task.wait(0.00001)
+                task.wait(0)
                 minigameStarted:FireServer(sessionID)
-                task.wait(0.00001)
+                task.wait(0)
                 local successArgs = {
                     ["duration"] = math.random(7.5, 12.5),
                     ["result"] = "SUCCESS",
@@ -100,7 +93,7 @@ local function startBlati()
                     ["isSecret"] = true
                 }
                 reelFinished:FireServer(successArgs, sessionID)
-                task.wait(0.00001)
+                task.wait(0)
                 if getgenv().AutoSell then
                     getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
                     if getgenv().FishCaught >= getgenv().SellInterval then
@@ -111,7 +104,7 @@ local function startBlati()
                     end
                 end
             else
-                task.wait(0.00001)
+                task.wait(0)
             end
         end
     end)
@@ -135,7 +128,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServ
     end,
 })
 
--- === PLAYER TAB ELEMENTS ===
 local jumpConnection
 PlayerTab:CreateToggle({
     Name = "Infinite Jump",
@@ -241,7 +233,6 @@ PlayerTab:CreateToggle({
     end,
 })
 
--- === TELEPORT MENU SENDIRI (tab baru, bukan di player) ===
 local TeleportTab = Window:CreateTab("TELEPORT", 4483362458)
 local teleportSection = TeleportTab:CreateSection("TELEPORT PULAU")
 
@@ -325,7 +316,6 @@ TeleportTab:CreateButton({
     end,
 })
 
--- Auto update walkspeed kalau character respawn
 player.CharacterAdded:Connect(function()
     task.wait(1)
     if humanoid then
@@ -333,7 +323,6 @@ player.CharacterAdded:Connect(function()
     end
 end)
 
--- === ANTI AFK ===
 local VirtualUser = game:GetService("VirtualUser")
 Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
@@ -341,7 +330,6 @@ Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
 
--- === ROD EQUIP FIX (biar rod tetep kepake setelah AFK lama) ===
 local rodEquipLoop = task.spawn(function()
     while true do
         if getgenv().Blati and player.Character then
@@ -353,7 +341,7 @@ local rodEquipLoop = task.spawn(function()
                 end
             end
         end
-        task.wait(10)
+        task.wait(1)
     end
 end)
 
