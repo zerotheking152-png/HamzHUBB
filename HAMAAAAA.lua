@@ -83,16 +83,21 @@ local function startBlati()
                 end
                 throwRemote:FireServer(0, sessionID)
                 minigameStarted:FireServer(sessionID)
-                local successArgs = {
-                    ["duration"] = math.random(7.5, 12.5),
-                    ["result"] = "SUCCESS",
-                    ["insideRatio"] = 0.8 + (math.random(3, 18) / 100),
-                    ["catchType"] = "SECRET",
-                    ["isSecret"] = true
-                }
-                reelFinished:FireServer(successArgs, sessionID)
+                
+                -- === DAPET 10 IKAN SEKALIGUS ===
+                for i = 1, 10 do
+                    local successArgs = {
+                        ["duration"] = math.random(7.5, 12.5),
+                        ["result"] = "SUCCESS",
+                        ["insideRatio"] = 0.8 + (math.random(3, 18) / 100),
+                        ["catchType"] = "SECRET",
+                        ["isSecret"] = true
+                    }
+                    reelFinished:FireServer(successArgs, sessionID)
+                end
+                
                 if getgenv().AutoSell then
-                    getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
+                    getgenv().FishCaught = (getgenv().FishCaught or 0) + 10
                     if getgenv().FishCaught >= getgenv().SellInterval then
                         if sellRemote then
                             sellRemote:FireServer(1000)
