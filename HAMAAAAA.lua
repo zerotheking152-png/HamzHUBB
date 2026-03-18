@@ -73,9 +73,7 @@ local function startBlati()
         while getgenv().Blati do
             if sessionID and humanoid then
                 throwRemote:FireServer(0, sessionID)
-                task.wait(0.00001)
                 minigameStarted:FireServer(sessionID)
-                task.wait(0.00001)
                 local successArgs = {
                     ["duration"] = math.random(7.5, 12.5),
                     ["result"] = "SUCCESS",
@@ -84,17 +82,15 @@ local function startBlati()
                     ["isSecret"] = true
                 }
                 reelFinished:FireServer(successArgs, sessionID)
-                task.wait(0.00001)
                 getgenv().CaughtCount = (getgenv().CaughtCount or 0) + 1
                 if getgenv().AutoSell and getgenv().CaughtCount >= (getgenv().SellEvery or 10) then
                     if sellRemote then
-                        sellRemote:FireServer(1000)
+                        sellRemote:FireServer(800)
                     end
                     getgenv().CaughtCount = 0
                 end
-            else
-                task.wait(0.00001)
             end
+            task.wait(0.001)
         end
     end)
 end
@@ -121,7 +117,7 @@ local function startForceSecret()
                 getgenv().CaughtCount = (getgenv().CaughtCount or 0) + 1
                 if getgenv().AutoSell and getgenv().CaughtCount >= (getgenv().SellEvery or 10) then
                     if sellRemote then
-                        sellRemote:FireServer(1000)
+                        sellRemote:FireServer(800)
                     end
                     getgenv().CaughtCount = 0
                 end
