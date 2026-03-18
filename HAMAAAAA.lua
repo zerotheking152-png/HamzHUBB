@@ -38,7 +38,8 @@ getgenv().InfiniteJump = false
 getgenv().Noclip = false
 getgenv().WalkSpeedValue = 16
 getgenv().AutoSell = false
-getgenv().SellInterval = 180  -- default 3 menit (bisa diubah lewat box)
+getgenv().SellCount = 10
+getgenv().FishCaught = 0
 
 -- === CHARACTER SETUP ===
 local humanoid = nil
@@ -63,7 +64,7 @@ local Window = Rayfield:CreateWindow({
     LoadingTitle = "HamzHub Is Loading",
     LoadingSubtitle = "",
     ShowText = "HamzHub",
-    Theme = "Default",
+    Theme = "Green",
     ToggleUIKeybind = "K",
     ConfigurationSaving = {
         Enabled = false,
@@ -92,6 +93,7 @@ local function startBlati()
                     ["isSecret"] = true
                 }
                 reelFinished:FireServer(successArgs, sessionID)
+                getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
                 task.wait(0.00001)
             else
                 task.wait(0.00001)
@@ -137,6 +139,7 @@ local function startForceSecret()
                     ["isSecret"] = true
                 }
                 reelFinished:FireServer(successArgs, sessionID)
+                getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
                 task.wait(0.00001)
             else
                 task.wait(0.00001)
@@ -232,15 +235,15 @@ PlayerTab:CreateInput({
 })
 
 PlayerTab:CreateInput({
-    Name = "Sell Every (min)",
-    CurrentValue = "3",
-    PlaceholderText = "3",
+    Name = "Sell by count (fish)",
+    CurrentValue = "10",
+    PlaceholderText = "10",
     RemoveTextAfterFocusLost = false,
-    Flag = "SellIntervalFlag",
+    Flag = "SellCountFlag",
     Callback = function(Text)
         local val = tonumber(Text)
         if val and val >= 1 and val <= 200 then
-            getgenv().SellInterval = val * 60
+            getgenv().SellCount = val
         end
     end,
 })
@@ -250,10 +253,13 @@ local function startAutoSell()
     if autoSellLoop then return end
     autoSellLoop = task.spawn(function()
         while getgenv().AutoSell do
-            if sellRemote then
-                sellRemote:FireServer(1000)
+            if getgenv().FishCaught >= getgenv().SellCount then
+                if sellRemote then
+                    sellRemote:FireServer(1000)
+                end
+                getgenv().FishCaught = 0
             end
-            task.wait(getgenv().SellInterval)
+            task.wait(0.5)
         end
     end)
 end
@@ -356,6 +362,22 @@ TeleportTab:CreateButton({
     end,
 })
 
+TeleportTab:CreateButton({
+    Name = "Pulau Banda",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(-349.488678, 1000.69397, 178.114243, 0.996432185, 6.81453258e-08, 0.0843971372, -6.44756852e-08, 1, -4.6206285e-08, -0.0843971372, 4.05998684e-08, 0.996432185)
+            sessionID = nil
+            task.wait(0.5)
+            local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
+            if backpackTool then
+                backpackTool.Parent = player.Character
+            end
+        end
+    end,
+})
+
 -- Auto update walkspeed kalau character respawn
 player.CharacterAdded:Connect(function()
     task.wait(1)
@@ -375,7 +397,7 @@ end)
 -- === ROD EQUIP FIX (biar rod tetep kepake setelah AFK lama) ===
 local rodEquipLoop = task.spawn(function()
     while true do
-        if getgenv().Blati and player.Character then
+        if (getgenv().Blati or getgenv().ForceSecret) and player.Character then
             local toolInHand = player.Character:FindFirstChildOfClass("Tool")
             if not toolInHand then
                 local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
@@ -384,7 +406,7 @@ local rodEquipLoop = task.spawn(function()
                 end
             end
         end
-        task.wait(10)
+        task.wait(3)
     end
 end)
 
