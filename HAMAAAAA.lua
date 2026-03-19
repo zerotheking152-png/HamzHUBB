@@ -84,6 +84,15 @@ local function startBlati()
                 }
                 reelFinished:FireServer(successArgs, sessionID)
                 getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
+                
+                -- AUTO SELL PER COUNT (langsung jual pas count tercapai)
+                if getgenv().AutoSell and getgenv().FishCaught >= getgenv().SellCount then
+                    if sellRemote then
+                        sellRemote:FireServer(1000)
+                    end
+                    getgenv().FishCaught = 0
+                end
+                
                 task.wait(0.00001)
             else
                 task.wait(0.00001)
@@ -129,6 +138,15 @@ local function startForceSecret()
                 }
                 reelFinished:FireServer(successArgs, sessionID)
                 getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
+                
+                -- AUTO SELL PER COUNT (langsung jual pas count tercapai)
+                if getgenv().AutoSell and getgenv().FishCaught >= getgenv().SellCount then
+                    if sellRemote then
+                        sellRemote:FireServer(1000)
+                    end
+                    getgenv().FishCaught = 0
+                end
+                
                 task.wait(0.00001)
             else
                 task.wait(0.00001)
@@ -236,33 +254,12 @@ PlayerTab:CreateInput({
     end,
 })
 
-local autoSellLoop
-local function startAutoSell()
-    if autoSellLoop then return end
-    autoSellLoop = task.spawn(function()
-        while getgenv().AutoSell do
-            if getgenv().FishCaught >= getgenv().SellCount then
-                if sellRemote then
-                    sellRemote:FireServer(1000)
-                end
-                getgenv().FishCaught = 0
-            end
-            task.wait(1)
-        end
-    end)
-end
-
 PlayerTab:CreateToggle({
     Name = "AUTO SELL",
     CurrentValue = false,
     Flag = "AutoSellFlag",
     Callback = function(Value)
         getgenv().AutoSell = Value
-        if Value then
-            startAutoSell()
-        else
-            if autoSellLoop then task.cancel(autoSellLoop) autoSellLoop = nil end
-        end
     end,
 })
 
@@ -377,30 +374,6 @@ Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
     task.wait(1)
     VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-end)
-
-local function setupRodEquip(char)
-    if not char then return end
-    char.ChildRemoved:Connect(function(child)
-        if child:IsA("Tool") and (getgenv().Blati or getgenv().ForceSecret) then
-            task.wait(0.05)
-            local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
-            if backpackTool then
-                backpackTool.Parent = char
-            end
-        end
-    end)
-end
-
-if player.Character then
-    setupRodEquip(player.Character)
-end
-player.CharacterAdded:Connect(function(char)
-    task.wait(1)
-    if humanoid then
-        humanoid.WalkSpeed = getgenv().WalkSpeedValue
-    end
-    setupRodEquip(char)
 end)
 
 print("🎉 HAMZHUB GUI KEREN udah muncul bro! Tab MAIN & PLAYER siap. Cast manual 1x dulu biar Blati nyala. Gas polll 🔥")
