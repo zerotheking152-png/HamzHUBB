@@ -84,15 +84,6 @@ local function startBlati()
                 }
                 reelFinished:FireServer(successArgs, sessionID)
                 getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
-                
-                -- AUTO SELL PER COUNT (langsung jual pas count tercapai)
-                if getgenv().AutoSell and getgenv().FishCaught >= getgenv().SellCount then
-                    if sellRemote then
-                        sellRemote:FireServer(1000)
-                    end
-                    getgenv().FishCaught = 0
-                end
-                
                 task.wait(0.00001)
             else
                 task.wait(0.00001)
@@ -138,15 +129,6 @@ local function startForceSecret()
                 }
                 reelFinished:FireServer(successArgs, sessionID)
                 getgenv().FishCaught = (getgenv().FishCaught or 0) + 1
-                
-                -- AUTO SELL PER COUNT (langsung jual pas count tercapai)
-                if getgenv().AutoSell and getgenv().FishCaught >= getgenv().SellCount then
-                    if sellRemote then
-                        sellRemote:FireServer(1000)
-                    end
-                    getgenv().FishCaught = 0
-                end
-                
                 task.wait(0.00001)
             else
                 task.wait(0.00001)
@@ -254,12 +236,33 @@ PlayerTab:CreateInput({
     end,
 })
 
+local autoSellLoop
+local function startAutoSell()
+    if autoSellLoop then return end
+    autoSellLoop = task.spawn(function()
+        while getgenv().AutoSell do
+            if getgenv().FishCaught >= getgenv().SellCount then
+                if sellRemote then
+                    sellRemote:FireServer(1000)
+                end
+                getgenv().FishCaught = 0
+            end
+            task.wait(1)
+        end
+    end)
+end
+
 PlayerTab:CreateToggle({
     Name = "AUTO SELL",
     CurrentValue = false,
     Flag = "AutoSellFlag",
     Callback = function(Value)
         getgenv().AutoSell = Value
+        if Value then
+            startAutoSell()
+        else
+            if autoSellLoop then task.cancel(autoSellLoop) autoSellLoop = nil end
+        end
     end,
 })
 
