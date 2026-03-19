@@ -379,4 +379,48 @@ Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
 
+local function setupRodEquip(char)
+    if not char then return end
+    char.ChildRemoved:Connect(function(child)
+        if child:IsA("Tool") and (getgenv().Blati or getgenv().ForceSecret) then
+            task.wait(0.05)
+            local backpackTool = player.Backpack:FindFirstChildOfClass("Tool")
+            if backpackTool then
+                backpackTool.Parent = char
+            end
+        end
+    end)
+end
+
+if player.Character then
+    setupRodEquip(player.Character)
+end
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    if humanoid then
+        humanoid.WalkSpeed = getgenv().WalkSpeedValue
+    end
+    setupRodEquip(char)
+end)
+
+-- ✅ CUSTOM GRADIENT GUI (KIRI MERAH - KANAN BIRU)
+task.spawn(function()
+    task.wait(1.5) -- tunggu Rayfield fully muncul
+    local rayfieldGui = player:WaitForChild("PlayerGui"):FindFirstChild("Rayfield")
+    if rayfieldGui then
+        local mainFrame = rayfieldGui:FindFirstChild("Main")
+        if mainFrame then
+            local gradient = Instance.new("UIGradient")
+            gradient.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),   -- kiri = merah
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 255))    -- kanan = biru
+            })
+            gradient.Rotation = 0
+            gradient.Parent = mainFrame
+            mainFrame.BackgroundTransparency = 0
+            print("🎨 Gradient Rayfield aktif: Kiri Merah → Kanan Biru (fade smooth)!")
+        end
+    end
+end)
+
 print("🎉 HAMZHUB GUI KEREN udah muncul bro! Tab MAIN & PLAYER siap. Cast manual 1x dulu biar Blati nyala. Gas polll 🔥")
