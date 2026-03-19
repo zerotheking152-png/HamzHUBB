@@ -48,22 +48,36 @@ player.CharacterAdded:Connect(function(char)
 end)
 getHumanoid()
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- ✅ ORION LIBRARY (SUPER KEREN, neon modern, animasi smooth, jauh lebih bagus dari Rayfield)
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/jensonhirst/Orion/main/source')))()
 
-local Window = Rayfield:CreateWindow({
+local Window = OrionLib:MakeWindow({
     Name = "HamzHub",
-    LoadingTitle = "HamzHub Is Loading",
-    LoadingSubtitle = "",
-    ShowText = "HamzHub",
-    Theme = "Default",
-    ToggleUIKeybind = "K",
-    ConfigurationSaving = {
-        Enabled = false,
-    },
+    HidePremium = true,
+    SaveConfig = false,
+    ConfigFolder = "HamzHubConfig",
+    IntroEnabled = true,
+    IntroText = "HamzHub Loading...",
+    Icon = "rbxassetid://4483362458"
 })
 
-local MainTab = Window:CreateTab("MAIN", 4483362458)
-local PlayerTab = Window:CreateTab("PLAYER", 4483362458)
+local MainTab = Window:MakeTab({
+    Name = "MAIN",
+    Icon = "rbxassetid://4483362458",
+    PremiumOnly = false
+})
+
+local PlayerTab = Window:MakeTab({
+    Name = "PLAYER",
+    Icon = "rbxassetid://4483362458",
+    PremiumOnly = false
+})
+
+local TeleportTab = Window:MakeTab({
+    Name = "TELEPORT",
+    Icon = "rbxassetid://4483362458",
+    PremiumOnly = false
+})
 
 local blatiLoop
 local function startBlati()
@@ -92,18 +106,15 @@ local function startBlati()
     end)
 end
 
-MainTab:CreateToggle({
+MainTab:AddToggle({
     Name = "BLATI (Instant Fishing)",
-    CurrentValue = false,
-    Flag = "BlatiFlag",
+    Default = false,
     Callback = function(Value)
         getgenv().Blati = Value
         if Value then
             startBlati()
-            local args = {
-	"bd4238ec-6bbc-4523-8c63-a17356e1f130"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServer"):WaitForChild("ToggleFavorite"):FireServer(unpack(args))
+            local args = {"bd4238ec-6bbc-4523-8c63-a17356e1f130"}
+            game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServer"):WaitForChild("ToggleFavorite"):FireServer(unpack(args))
         else
             if blatiLoop then task.cancel(blatiLoop) blatiLoop = nil end
         end
@@ -137,18 +148,15 @@ local function startForceSecret()
     end)
 end
 
-MainTab:CreateToggle({
+MainTab:AddToggle({
     Name = "FORCE SECRET (Instant Fishing Secret)",
-    CurrentValue = false,
-    Flag = "ForceSecretFlag",
+    Default = false,
     Callback = function(Value)
         getgenv().ForceSecret = Value
         if Value then
             startForceSecret()
-            local args = {
-	"bd4238ec-6bbc-4523-8c63-a17356e1f130"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServer"):WaitForChild("ToggleFavorite"):FireServer(unpack(args))
+            local args = {"bd4238ec-6bbc-4523-8c63-a17356e1f130"}
+            game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServer"):WaitForChild("ToggleFavorite"):FireServer(unpack(args))
         else
             if forceSecretLoop then task.cancel(forceSecretLoop) forceSecretLoop = nil end
         end
@@ -156,10 +164,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("FishUI"):WaitForChild("ToServ
 })
 
 local jumpConnection
-PlayerTab:CreateToggle({
+PlayerTab:AddToggle({
     Name = "Infinite Jump",
-    CurrentValue = false,
-    Flag = "InfJumpFlag",
+    Default = false,
     Callback = function(Value)
         getgenv().InfiniteJump = Value
         if Value then
@@ -175,10 +182,9 @@ PlayerTab:CreateToggle({
 })
 
 local noclipConnection
-PlayerTab:CreateToggle({
+PlayerTab:AddToggle({
     Name = "Noclip",
-    CurrentValue = false,
-    Flag = "NoclipFlag",
+    Default = false,
     Callback = function(Value)
         getgenv().Noclip = Value
         if Value then
@@ -207,12 +213,10 @@ PlayerTab:CreateToggle({
     end,
 })
 
-PlayerTab:CreateInput({
+PlayerTab:AddTextbox({
     Name = "WalkSpeed",
-    CurrentValue = "16",
-    PlaceholderText = "16",
-    RemoveTextAfterFocusLost = false,
-    Flag = "WalkSpeedFlag",
+    Default = "16",
+    TextDisappear = false,
     Callback = function(Text)
         local value = tonumber(Text)
         if value and humanoid then
@@ -222,12 +226,10 @@ PlayerTab:CreateInput({
     end,
 })
 
-PlayerTab:CreateInput({
+PlayerTab:AddTextbox({
     Name = "Sell by count (fish)",
-    CurrentValue = "10",
-    PlaceholderText = "10",
-    RemoveTextAfterFocusLost = false,
-    Flag = "SellCountFlag",
+    Default = "10",
+    TextDisappear = false,
     Callback = function(Text)
         local val = tonumber(Text)
         if val and val >= 1 and val <= 200 then
@@ -252,10 +254,9 @@ local function startAutoSell()
     end)
 end
 
-PlayerTab:CreateToggle({
+PlayerTab:AddToggle({
     Name = "AUTO SELL",
-    CurrentValue = false,
-    Flag = "AutoSellFlag",
+    Default = false,
     Callback = function(Value)
         getgenv().AutoSell = Value
         if Value then
@@ -266,10 +267,11 @@ PlayerTab:CreateToggle({
     end,
 })
 
-local TeleportTab = Window:CreateTab("TELEPORT", 4483362458)
-local teleportSection = TeleportTab:CreateSection("TELEPORT PULAU")
+TeleportTab:AddSection({
+    Name = "TELEPORT PULAU"
+})
 
-TeleportTab:CreateButton({
+TeleportTab:AddButton({
     Name = "Pulau Kinyis",
     Callback = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -285,7 +287,7 @@ TeleportTab:CreateButton({
     end,
 })
 
-TeleportTab:CreateButton({
+TeleportTab:AddButton({
     Name = "Pulau Raja Ampat",
     Callback = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -301,7 +303,7 @@ TeleportTab:CreateButton({
     end,
 })
 
-TeleportTab:CreateButton({
+TeleportTab:AddButton({
     Name = "Pulau Wakatobi",
     Callback = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -317,7 +319,7 @@ TeleportTab:CreateButton({
     end,
 })
 
-TeleportTab:CreateButton({
+TeleportTab:AddButton({
     Name = "Pulau Bali",
     Callback = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -333,7 +335,7 @@ TeleportTab:CreateButton({
     end,
 })
 
-TeleportTab:CreateButton({
+TeleportTab:AddButton({
     Name = "Pulau natuna",
     Callback = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -349,7 +351,7 @@ TeleportTab:CreateButton({
     end,
 })
 
-TeleportTab:CreateButton({
+TeleportTab:AddButton({
     Name = "Pulau Banda",
     Callback = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -403,24 +405,25 @@ player.CharacterAdded:Connect(function(char)
     setupRodEquip(char)
 end)
 
--- ✅ CUSTOM GRADIENT GUI (KIRI MERAH - KANAN BIRU)
+-- ✅ GRADIENT KEREN (Kiri Merah → Kanan Biru fade smooth)
 task.spawn(function()
-    task.wait(1.5) -- tunggu Rayfield fully muncul
-    local rayfieldGui = player:WaitForChild("PlayerGui"):FindFirstChild("Rayfield")
-    if rayfieldGui then
-        local mainFrame = rayfieldGui:FindFirstChild("Main")
+    task.wait(2)
+    local orionGui = player:WaitForChild("PlayerGui"):FindFirstChild("Orion")
+    if orionGui then
+        local mainFrame = orionGui:FindFirstChild("MainFrame")
         if mainFrame then
             local gradient = Instance.new("UIGradient")
             gradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),   -- kiri = merah
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 255))    -- kanan = biru
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),   -- kiri merah
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 255))  -- kanan biru neon
             })
             gradient.Rotation = 0
             gradient.Parent = mainFrame
-            mainFrame.BackgroundTransparency = 0
-            print("🎨 Gradient Rayfield aktif: Kiri Merah → Kanan Biru (fade smooth)!")
+            print("🎨 Orion Gradient aktif: Kiri Merah → Kanan Biru neon keren banget!")
         end
     end
 end)
 
-print("🎉 HAMZHUB GUI KEREN udah muncul bro! Tab MAIN & PLAYER siap. Cast manual 1x dulu biar Blati nyala. Gas polll 🔥")
+OrionLib:Init()
+
+print("🎉 HAMZHUB ORION GUI SUPER KEREN udah muncul bro! Neon modern + gradient biru-merah 🔥 Cast manual 1x dulu biar Blati nyala. Gas polll!")
