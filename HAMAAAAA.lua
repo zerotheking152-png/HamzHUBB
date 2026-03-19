@@ -34,6 +34,9 @@ getgenv().AutoSell = false
 getgenv().SellCount = 10
 getgenv().FishCaught = 0
 
+-- ✅ CUSTOM MINIMIZE IMAGE (ganti ID ini pakai gambar lo sendiri)
+getgenv().MinimizeImage = "rbxassetid://3926305904" -- <<< GANTI ID INI PAKE rbxassetid://GAMBAR_YANG_LO_MAU (upload ke Roblox dulu)
+
 local humanoid = nil
 local function getHumanoid()
     if player.Character and player.Character:FindFirstChild("Humanoid") then
@@ -48,36 +51,21 @@ player.CharacterAdded:Connect(function(char)
 end)
 getHumanoid()
 
--- ✅ ORION LIBRARY (SUPER KEREN, neon modern, animasi smooth, jauh lebih bagus dari Rayfield)
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/jensonhirst/Orion/main/source')))()
+-- ✅ GANTI KE LINORIA (LEBIH KEREN! Modern dark theme, smooth animation, premium look)
+local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 
-local Window = OrionLib:MakeWindow({
-    Name = "HamzHub",
-    HidePremium = true,
-    SaveConfig = false,
-    ConfigFolder = "HamzHubConfig",
-    IntroEnabled = true,
-    IntroText = "HamzHub Loading...",
-    Icon = "rbxassetid://4483362458"
+local Window = Library:CreateWindow({
+    Title = 'HamzHub',
+    Center = true,
+    AutoShow = true,
 })
 
-local MainTab = Window:MakeTab({
-    Name = "MAIN",
-    Icon = "rbxassetid://4483362458",
-    PremiumOnly = false
-})
-
-local PlayerTab = Window:MakeTab({
-    Name = "PLAYER",
-    Icon = "rbxassetid://4483362458",
-    PremiumOnly = false
-})
-
-local TeleportTab = Window:MakeTab({
-    Name = "TELEPORT",
-    Icon = "rbxassetid://4483362458",
-    PremiumOnly = false
-})
+local Tabs = {
+    Main = Window:AddTab('MAIN'),
+    Player = Window:AddTab('PLAYER'),
+    Teleport = Window:AddTab('TELEPORT'),
+}
 
 local blatiLoop
 local function startBlati()
@@ -106,8 +94,10 @@ local function startBlati()
     end)
 end
 
-MainTab:AddToggle({
-    Name = "BLATI (Instant Fishing)",
+local MainGroup = Tabs.Main:AddLeftGroupbox('Fishing Features')
+
+MainGroup:AddToggle('BlatiFlag', {
+    Text = 'BLATI (Instant Fishing)',
     Default = false,
     Callback = function(Value)
         getgenv().Blati = Value
@@ -148,8 +138,8 @@ local function startForceSecret()
     end)
 end
 
-MainTab:AddToggle({
-    Name = "FORCE SECRET (Instant Fishing Secret)",
+MainGroup:AddToggle('ForceSecretFlag', {
+    Text = 'FORCE SECRET (Instant Fishing Secret)',
     Default = false,
     Callback = function(Value)
         getgenv().ForceSecret = Value
@@ -164,8 +154,10 @@ MainTab:AddToggle({
 })
 
 local jumpConnection
-PlayerTab:AddToggle({
-    Name = "Infinite Jump",
+local PlayerGroup = Tabs.Player:AddLeftGroupbox('Player Features')
+
+PlayerGroup:AddToggle('InfJumpFlag', {
+    Text = 'Infinite Jump',
     Default = false,
     Callback = function(Value)
         getgenv().InfiniteJump = Value
@@ -182,8 +174,8 @@ PlayerTab:AddToggle({
 })
 
 local noclipConnection
-PlayerTab:AddToggle({
-    Name = "Noclip",
+PlayerGroup:AddToggle('NoclipFlag', {
+    Text = 'Noclip',
     Default = false,
     Callback = function(Value)
         getgenv().Noclip = Value
@@ -213,10 +205,12 @@ PlayerTab:AddToggle({
     end,
 })
 
-PlayerTab:AddTextbox({
-    Name = "WalkSpeed",
-    Default = "16",
-    TextDisappear = false,
+PlayerGroup:AddInput('WalkSpeedFlag', {
+    Text = 'WalkSpeed',
+    Default = '16',
+    Placeholder = '16',
+    Numeric = false,
+    Finished = false,
     Callback = function(Text)
         local value = tonumber(Text)
         if value and humanoid then
@@ -226,10 +220,12 @@ PlayerTab:AddTextbox({
     end,
 })
 
-PlayerTab:AddTextbox({
-    Name = "Sell by count (fish)",
-    Default = "10",
-    TextDisappear = false,
+PlayerGroup:AddInput('SellCountFlag', {
+    Text = 'Sell by count (fish)',
+    Default = '10',
+    Placeholder = '10',
+    Numeric = false,
+    Finished = false,
     Callback = function(Text)
         local val = tonumber(Text)
         if val and val >= 1 and val <= 200 then
@@ -254,8 +250,8 @@ local function startAutoSell()
     end)
 end
 
-PlayerTab:AddToggle({
-    Name = "AUTO SELL",
+PlayerGroup:AddToggle('AutoSellFlag', {
+    Text = 'AUTO SELL',
     Default = false,
     Callback = function(Value)
         getgenv().AutoSell = Value
@@ -267,13 +263,11 @@ PlayerTab:AddToggle({
     end,
 })
 
-TeleportTab:AddSection({
-    Name = "TELEPORT PULAU"
-})
+local TeleportGroup = Tabs.Teleport:AddLeftGroupbox('TELEPORT PULAU')
 
-TeleportTab:AddButton({
-    Name = "Pulau Kinyis",
-    Callback = function()
+TeleportGroup:AddButton({
+    Text = 'Pulau Kinyis',
+    Func = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if hrp then
             hrp.CFrame = CFrame.new(81.8612061, 1006.87341, -818.234985, 0.485841095, -3.1988499e-08, -0.87404716, 9.73005925e-08, 1, 1.74866148e-08, 0.87404716, -9.35410185e-08, 0.485841095)
@@ -287,9 +281,9 @@ TeleportTab:AddButton({
     end,
 })
 
-TeleportTab:AddButton({
-    Name = "Pulau Raja Ampat",
-    Callback = function()
+TeleportGroup:AddButton({
+    Text = 'Pulau Raja Ampat',
+    Func = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if hrp then
             hrp.CFrame = CFrame.new(-1845.45935, 1006.62732, -1579.06555, 0.925677121, -1.99983274e-09, 0.378314495, 9.79888726e-10, 1, 2.88852808e-09, -0.378314495, -2.30313835e-09, 0.925677121)
@@ -303,9 +297,9 @@ TeleportTab:AddButton({
     end,
 })
 
-TeleportTab:AddButton({
-    Name = "Pulau Wakatobi",
-    Callback = function()
+TeleportGroup:AddButton({
+    Text = 'Pulau Wakatobi',
+    Func = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if hrp then
             hrp.CFrame = CFrame.new(-1399.88684, 1021.17017, 1497.85059, -0.327202201, -4.10665884e-08, 0.944954336, 7.90609747e-08, 1, 7.08346519e-08, -0.944954336, 9.78862644e-08, -0.327202201)
@@ -319,9 +313,9 @@ TeleportTab:AddButton({
     end,
 })
 
-TeleportTab:AddButton({
-    Name = "Pulau Bali",
-    Callback = function()
+TeleportGroup:AddButton({
+    Text = 'Pulau Bali',
+    Func = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if hrp then
             hrp.CFrame = CFrame.new(989.347717, 1034.922, 1607.38538, 0.00405485556, 4.51565931e-08, 0.999991775, -1.46329642e-08, 1, -4.50976287e-08, -0.999991775, -1.4449979e-08, 0.00405485556)
@@ -335,9 +329,9 @@ TeleportTab:AddButton({
     end,
 })
 
-TeleportTab:AddButton({
-    Name = "Pulau natuna",
-    Callback = function()
+TeleportGroup:AddButton({
+    Text = 'Pulau natuna',
+    Func = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if hrp then
             hrp.CFrame = CFrame.new(2240.65332, 995.997681, -94.5214081, 0.267383486, 2.81976913e-08, -0.963590205, 1.64388858e-08, 1, 3.38247297e-08, 0.963590205, -2.48845229e-08, 0.267383486)
@@ -351,9 +345,9 @@ TeleportTab:AddButton({
     end,
 })
 
-TeleportTab:AddButton({
-    Name = "Pulau Banda",
-    Callback = function()
+TeleportGroup:AddButton({
+    Text = 'Pulau Banda',
+    Func = function()
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if hrp then
             hrp.CFrame = CFrame.new(-349.488678, 1000.69397, 178.114243, 0.996432185, 6.81453258e-08, 0.0843971372, -6.44756852e-08, 1, -4.6206285e-08, -0.0843971372, 4.05998684e-08, 0.996432185)
@@ -405,25 +399,41 @@ player.CharacterAdded:Connect(function(char)
     setupRodEquip(char)
 end)
 
--- ✅ GRADIENT KEREN (Kiri Merah → Kanan Biru fade smooth)
+-- ✅ UI MINIMIZE CUSTOM (tombol floating yang gambarnya bisa diubah)
 task.spawn(function()
-    task.wait(2)
-    local orionGui = player:WaitForChild("PlayerGui"):FindFirstChild("Orion")
-    if orionGui then
-        local mainFrame = orionGui:FindFirstChild("MainFrame")
-        if mainFrame then
-            local gradient = Instance.new("UIGradient")
-            gradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),   -- kiri merah
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 255))  -- kanan biru neon
-            })
-            gradient.Rotation = 0
-            gradient.Parent = mainFrame
-            print("🎨 Orion Gradient aktif: Kiri Merah → Kanan Biru neon keren banget!")
+    task.wait(2) -- tunggu Linoria full load
+    local minimizeGui = Instance.new("ScreenGui")
+    minimizeGui.Name = "HamzMinimizeUI"
+    minimizeGui.ResetOnSpawn = false
+    minimizeGui.Parent = player.PlayerGui
+
+    local minimizeBtn = Instance.new("ImageButton")
+    minimizeBtn.Size = UDim2.fromOffset(55, 55)
+    minimizeBtn.Position = UDim2.new(1, -70, 0, 20)
+    minimizeBtn.BackgroundTransparency = 1
+    minimizeBtn.Image = getgenv().MinimizeImage
+    minimizeBtn.Parent = minimizeGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = minimizeBtn
+
+    local isHidden = false
+    minimizeBtn.MouseButton1Click:Connect(function()
+        local coreGui = game:GetService("CoreGui")
+        local linoriaScreen = nil
+        for _, v in ipairs(coreGui:GetChildren()) do
+            if v:IsA("ScreenGui") and v:FindFirstChild("Main") then
+                linoriaScreen = v
+                break
+            end
         end
-    end
+        if linoriaScreen then
+            isHidden = not isHidden
+            linoriaScreen.Enabled = not isHidden
+            print("🖼️ HamzHub GUI " .. (isHidden and "DIMINIMIZE" or "DITAMPILKAN"))
+        end
+    end)
 end)
 
-OrionLib:Init()
-
-print("🎉 HAMZHUB ORION GUI SUPER KEREN udah muncul bro! Neon modern + gradient biru-merah 🔥 Cast manual 1x dulu biar Blati nyala. Gas polll!")
+print("🎉 HAMZHUB GUI KEREN udah muncul bro! Tab MAIN & PLAYER siap. Cast manual 1x dulu biar Blati nyala. Gas polll 🔥")
