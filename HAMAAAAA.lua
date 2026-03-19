@@ -34,9 +34,6 @@ getgenv().AutoSell = false
 getgenv().SellCount = 10
 getgenv().FishCaught = 0
 
--- ✅ CUSTOM MINIMIZE IMAGE (ganti ID ini pakai gambar lo sendiri)
-getgenv().MinimizeImage = "rbxassetid://3926305904" -- <<< GANTI ID INI PAKE rbxassetid://GAMBAR_YANG_LO_MAU (upload ke Roblox dulu)
-
 local humanoid = nil
 local function getHumanoid()
     if player.Character and player.Character:FindFirstChild("Humanoid") then
@@ -397,43 +394,6 @@ player.CharacterAdded:Connect(function(char)
         humanoid.WalkSpeed = getgenv().WalkSpeedValue
     end
     setupRodEquip(char)
-end)
-
--- ✅ UI MINIMIZE CUSTOM (tombol floating yang gambarnya bisa diubah)
-task.spawn(function()
-    task.wait(2) -- tunggu Linoria full load
-    local minimizeGui = Instance.new("ScreenGui")
-    minimizeGui.Name = "HamzMinimizeUI"
-    minimizeGui.ResetOnSpawn = false
-    minimizeGui.Parent = player.PlayerGui
-
-    local minimizeBtn = Instance.new("ImageButton")
-    minimizeBtn.Size = UDim2.fromOffset(55, 55)
-    minimizeBtn.Position = UDim2.new(1, -70, 0, 20)
-    minimizeBtn.BackgroundTransparency = 1
-    minimizeBtn.Image = getgenv().MinimizeImage
-    minimizeBtn.Parent = minimizeGui
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = minimizeBtn
-
-    local isHidden = false
-    minimizeBtn.MouseButton1Click:Connect(function()
-        local coreGui = game:GetService("CoreGui")
-        local linoriaScreen = nil
-        for _, v in ipairs(coreGui:GetChildren()) do
-            if v:IsA("ScreenGui") and v:FindFirstChild("Main") then
-                linoriaScreen = v
-                break
-            end
-        end
-        if linoriaScreen then
-            isHidden = not isHidden
-            linoriaScreen.Enabled = not isHidden
-            print("🖼️ HamzHub GUI " .. (isHidden and "DIMINIMIZE" or "DITAMPILKAN"))
-        end
-    end)
 end)
 
 print("🎉 HAMZHUB GUI KEREN udah muncul bro! Tab MAIN & PLAYER siap. Cast manual 1x dulu biar Blati nyala. Gas polll 🔥")
